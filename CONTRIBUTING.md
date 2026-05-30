@@ -63,10 +63,11 @@ without round-tripping a PR.
 
 ```bash
 # Markdown lint
-npx -y markdownlint-cli2 "content/**/*.md" "*.md"
+npx -y markdownlint-cli2 "content/**/*.md" "docs/**/*.md" "*.md"
 
 # Broken-link check (online + offline references)
-npx -y lychee --no-progress --exclude-loopback "content/**/*.md" "*.md"
+# Install lychee first: https://github.com/lycheeverse/lychee
+lychee --no-progress --exclude-loopback --root-dir content --fallback-extensions md "content/**/*.md" "docs/**/*.md" "*.md"
 
 # OpenAPI lint
 npx -y @stoplight/spectral-cli lint openapi/openapi.yaml
@@ -106,12 +107,11 @@ java, yaml, json, bash, shell, xml, html).
 
 ## Releases
 
-There isn't a formal release cycle. Merged PRs ship the next time the docs
-site is rebuilt — typically within a day. There's no need to bump a version
-number in this repository.
+routeur.ai handles tagging and releases for this repository when needed.
+Contributors do not need to manage version numbers or a release process here.
 
 ## Need help?
 
-Open a draft PR and ask in the description, or start a
-[discussion](https://github.com/routeur-ai/routeur-docs/discussions). For
-account/product questions, see [routeur.ai/support](https://routeur.ai/support).
+Open a draft PR and ask in the description, or open an
+[issue](https://github.com/routeur-ai/routeur-docs/issues). For account or
+product questions, start from [routeur.ai](https://routeur.ai).

@@ -1,6 +1,7 @@
 get:
   operationId: listRoutes
   summary: List routes
+  description: List the routing rules configured for the authenticated organisation.
   tags: [routes]
   x-stability: Preview
   parameters:
@@ -59,6 +60,7 @@ get:
 post:
   operationId: createRoute
   summary: Create a route
+  description: Create a new routing rule for model selection and request handling.
   tags: [routes]
   x-stability: Preview
   requestBody:

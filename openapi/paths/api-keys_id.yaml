@@ -8,6 +8,7 @@ parameters:
 delete:
   operationId: revokeApiKey
   summary: Revoke an API key
+  description: Revoke an API key so it can no longer be used for authentication.
   tags: [api-keys]
   x-stability: Preview
   responses:

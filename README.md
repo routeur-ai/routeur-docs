@@ -1,11 +1,11 @@
 # routeur.ai docs
 
-[![docs.routeur.ai](https://img.shields.io/badge/docs-routeur.ai-7c3aed)](https://docs.routeur.ai)
+[![docs.routeur.ai](https://img.shields.io/badge/docs-routeur.ai-7c3aed)](https://routeur.ai)
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/license-CC%20BY--NC%204.0-3b82f6)](LICENSE)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-22c55e)](CONTRIBUTING.md)
 
-The public source for **[docs.routeur.ai](https://docs.routeur.ai)** — the
-documentation site for [routeur.ai](https://routeur.ai), the OpenAI-compatible
+The public source for **docs.routeur.ai** — the documentation site for
+[routeur.ai](https://routeur.ai), the OpenAI-compatible
 LLM gateway with routing, DLP, output moderation, traces, and per-request cost
 attribution.
 
@@ -56,10 +56,24 @@ Security issues should be reported privately to **security@routeur.ai** —
 please don't open a public issue for vulnerabilities in either the docs or the
 product itself.
 
+## Local checks
+
+These are the same checks CI runs.
+
+```bash
+# Markdown lint
+npx -y markdownlint-cli2 "content/**/*.md" "docs/**/*.md" "*.md"
+
+# Broken-link check (install lychee first: https://github.com/lycheeverse/lychee)
+lychee --no-progress --exclude-loopback "content/**/*.md" "docs/**/*.md" "*.md"
+
+# OpenAPI lint
+npx -y @stoplight/spectral-cli lint openapi/openapi.yaml
+```
+
 ## License
 
 Content is licensed under [CC BY-NC 4.0](LICENSE). You're free to copy and
 adapt it for non-commercial use, as long as you give credit. Commercial reuse,
 republication, or resale requires separate permission. The routeur.ai API and
-product are governed separately by the
-[routeur.ai Terms of Service](https://routeur.ai/legal/terms).
+product are governed separately by routeur.ai terms and policies.

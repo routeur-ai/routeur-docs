@@ -1,6 +1,7 @@
 get:
   operationId: listModels
   summary: List models
+  description: List the upstream models currently available through routeur.ai.
   tags: [models]
   x-stability: Stable
   parameters:

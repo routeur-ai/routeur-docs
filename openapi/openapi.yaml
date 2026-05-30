@@ -3,11 +3,25 @@ info:
   title: routeur.ai API
   version: '1'
   description: Intelligent LLM gateway.
+  contact:
+    name: routeur.ai
+    url: https://routeur.ai
 servers:
   - url: https://api.routeur.ai
     description: Production
 security:
   - bearer_auth: []
+tags:
+  - name: chat-completions
+    description: OpenAI-compatible chat completion requests routed through routeur.ai.
+  - name: routes
+    description: Routing rule management for model resolution and traffic shaping.
+  - name: models
+    description: Available upstream model inventory and metadata.
+  - name: traces
+    description: Request trace records and trace inspection endpoints.
+  - name: api-keys
+    description: API key lifecycle operations for authenticating to routeur.ai.
 components:
   securitySchemes:
     bearer_auth:

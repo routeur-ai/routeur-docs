@@ -37,8 +37,9 @@ jobs:
         with:
           args: >-
             --no-progress
-            --exclude-mail
             --exclude-loopback
+            --root-dir content
+            --fallback-extensions md
             "content/**/*.md"
             "docs/**/*.md"
             "*.md"

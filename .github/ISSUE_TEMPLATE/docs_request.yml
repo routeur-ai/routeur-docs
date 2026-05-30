@@ -1,4 +1,3 @@
----
 name: Documentation request
 description: Propose a new page, example, clarification, or guide
 labels: [documentation]
@@ -11,6 +10,7 @@ body:
     id: topic
     attributes:
       label: Topic
+      description: Name the missing page, example, or clarification you want.
       placeholder: Add a TypeScript quickstart for responses API
     validations:
       required: true
@@ -18,6 +18,7 @@ body:
     id: gap
     attributes:
       label: What is missing or unclear?
+      description: Describe the missing detail or confusing part of the current docs.
       placeholder: There is no page that explains...
     validations:
       required: true
@@ -25,10 +26,11 @@ body:
     id: audience
     attributes:
       label: Who is this for?
+      description: Describe the user or workflow that needs this documentation.
       placeholder: New users migrating from the OpenAI API
   - type: textarea
     id: proposal
     attributes:
       label: Proposed improvement
+      description: Suggest the page, example, or wording you would like to see.
       placeholder: Add a short guide with curl, JavaScript, and Python examples.
----

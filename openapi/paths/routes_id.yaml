@@ -8,6 +8,7 @@ parameters:
 get:
   operationId: retrieveRoute
   summary: Retrieve a route
+  description: Retrieve a single routing rule by its identifier.
   tags: [routes]
   x-stability: Preview
   responses:
@@ -49,6 +50,7 @@ get:
 put:
   operationId: replaceRoute
   summary: Replace a route
+  description: Replace an existing routing rule with a full new definition.
   tags: [routes]
   x-stability: Preview
   requestBody:
@@ -104,6 +106,7 @@ put:
 patch:
   operationId: updateRoute
   summary: Update a route
+  description: Update selected fields on an existing routing rule.
   tags: [routes]
   x-stability: Preview
   requestBody:
@@ -151,6 +154,7 @@ patch:
 delete:
   operationId: deleteRoute
   summary: Delete a route
+  description: Delete a routing rule by its identifier.
   tags: [routes]
   x-stability: Preview
   responses:

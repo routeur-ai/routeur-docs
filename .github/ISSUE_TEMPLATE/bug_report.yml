@@ -1,4 +1,3 @@
----
 name: Bug report
 description: Report something inaccurate, broken, or confusing in the docs
 labels: [bug]
@@ -19,6 +18,7 @@ body:
     id: expected
     attributes:
       label: What did you expect instead?
+      description: Explain the correct behavior or wording you expected to see.
       placeholder: The page should explain...
     validations:
       required: true
@@ -33,4 +33,3 @@ body:
     attributes:
       label: Additional context
       description: Screenshots, API responses, or anything else that helps reproduce the problem.
----

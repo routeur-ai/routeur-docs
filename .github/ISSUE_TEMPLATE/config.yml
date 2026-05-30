@@ -4,5 +4,5 @@ contact_links:
     url: mailto:security@routeur.ai
     about: Report vulnerabilities privately instead of opening a public issue.
   - name: Product support
-    url: https://routeur.ai/support
+    url: https://routeur.ai
     about: For account, billing, or product questions unrelated to docs.

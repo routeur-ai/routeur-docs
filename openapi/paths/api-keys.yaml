@@ -1,6 +1,7 @@
 get:
   operationId: listApiKeys
   summary: List API keys
+  description: List the API keys available to the authenticated organisation.
   tags: [api-keys]
   x-stability: Preview
   responses:
@@ -43,6 +44,7 @@ get:
 post:
   operationId: createApiKey
   summary: Create an API key
+  description: Create a new API key for authenticating requests to routeur.ai.
   tags: [api-keys]
   x-stability: Preview
   requestBody:

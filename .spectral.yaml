@@ -1,0 +1,9 @@
+extends:
+  - spectral:oas
+
+overrides:
+  - files:
+      - openapi/openapi.yaml
+    rules:
+      oas3-schema: off
+      oas3-unused-component: off

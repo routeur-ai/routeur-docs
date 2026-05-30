@@ -8,6 +8,7 @@ parameters:
 get:
   operationId: retrieveTrace
   summary: Retrieve a trace
+  description: Retrieve the full stored trace record for a single request.
   tags: [traces]
   x-stability: Preview
   responses:
@@ -50,6 +51,7 @@ get:
 head:
   operationId: inspectTrace
   summary: Inspect a trace
+  description: Inspect high-level trace metadata through response headers only.
   tags: [traces]
   x-stability: Preview
   responses:

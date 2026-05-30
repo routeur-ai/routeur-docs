@@ -1,6 +1,7 @@
 get:
   operationId: listTraces
   summary: List traces
+  description: List recent request traces for the authenticated organisation.
   tags: [traces]
   x-stability: Preview
   parameters:
