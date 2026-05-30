@@ -6,8 +6,8 @@ prev:
   href: /guides/output-moderation
   label: Output moderation
 next:
-  href: /api-reference/chat-completions/create
-  label: Chat completions
+  href: /guides/presets
+  label: Presets reference
 ---
 
 Every request produces two artefacts: a small **trace record** (always) and, when payload storage is enabled, a full **payload archive** with the original caller request, upstream request, upstream response, and the final caller response.

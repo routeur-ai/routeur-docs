@@ -86,4 +86,4 @@ Bring-your-own pattern. Anything matching the rule is rewritten before the upstr
 
 - **regex:** caller-supplied regular expression matched against message content.
 - **keyword:** literal substring match, case-insensitive.
-- **preset:** managed detectors maintained by routeur.ai for common sensitive-data categories. Available presets are listed in the dashboard.
+- **preset:** managed detectors maintained by routeur.ai for common sensitive-data categories (email, phone, credit card, IBAN, JWTs, AWS keys, PEM blocks, …). See [Presets reference · DLP](/guides/presets#dlp) for the full catalogue and examples.
