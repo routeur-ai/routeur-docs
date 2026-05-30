@@ -1,0 +1,98 @@
+get:
+  operationId: listApiKeys
+  summary: List API keys
+  tags: [api-keys]
+  x-stability: Preview
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          x-label: Response
+          example: |
+            {
+              "data": [
+                {
+                  "id":           "key_01J...",
+                  "name":         "Production",
+                  "prefix":       "rtr_live_qF8…",
+                  "created_at":   "2026-04-12T09:11:30Z",
+                  "last_used_at": "2026-05-29T10:55:00Z"
+                }
+              ]
+            }
+  x-codeSamples:
+    - lang: curl
+      source: |
+        curl https://api.routeur.ai/v1/api-keys \
+          -H "Authorization: Bearer $ROUTEUR_KEY"
+    - lang: node
+      source: |
+        const res = await fetch("https://api.routeur.ai/v1/api-keys", {
+          headers: { Authorization: `Bearer ${process.env.ROUTEUR_KEY}` }
+        });
+        const { data } = await res.json();
+    - lang: python
+      source: |
+        r = requests.get(
+            "https://api.routeur.ai/v1/api-keys",
+            headers={"Authorization": f"Bearer {os.environ['ROUTEUR_KEY']}"},
+        )
+        keys = r.json()["data"]
+
+post:
+  operationId: createApiKey
+  summary: Create an API key
+  tags: [api-keys]
+  x-stability: Preview
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required: [name]
+          properties:
+            name:
+              type: string
+              description: Human label that appears in the dashboard and trace records, e.g. `Production`.
+  responses:
+    '201':
+      description: Created
+      content:
+        application/json:
+          x-label: Response
+          example: |
+            {
+              "id":         "key_01J...",
+              "name":       "Production",
+              "prefix":     "rtr_live_qF8…",
+              "key":        "rtr_live_qF8…W2k",
+              "created_at": "2026-05-29T11:05:00Z"
+            }
+  x-codeSamples:
+    - lang: curl
+      source: |
+        curl -X POST https://api.routeur.ai/v1/api-keys \
+          -H "Authorization: Bearer $ROUTEUR_KEY" \
+          -H "Content-Type: application/json" \
+          -d '{ "name": "Production" }'
+    - lang: node
+      source: |
+        const res = await fetch("https://api.routeur.ai/v1/api-keys", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.ROUTEUR_KEY}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ name: "Production" })
+        });
+        const created = await res.json();
+    - lang: python
+      source: |
+        r = requests.post(
+            "https://api.routeur.ai/v1/api-keys",
+            headers={"Authorization": f"Bearer {os.environ['ROUTEUR_KEY']}"},
+            json={"name": "Production"},
+        )
+        created = r.json()

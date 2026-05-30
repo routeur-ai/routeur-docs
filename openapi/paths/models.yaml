@@ -1,0 +1,57 @@
+get:
+  operationId: listModels
+  summary: List models
+  tags: [models]
+  x-stability: Stable
+  parameters:
+    - in: query
+      name: provider
+      required: false
+      schema: { type: string }
+      description: Restrict the result to one provider, e.g. `openai`.
+    - in: query
+      name: configured
+      required: false
+      schema: { type: boolean }
+      description: Restrict to models whose provider credentials are currently mounted.
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          x-label: Response
+          example: |
+            {
+              "data": [
+                {
+                  "id":       "gpt-4o-mini",
+                  "provider": "openai",
+                  "context_window": 128000,
+                  "configured": true
+                },
+                {
+                  "id":       "gemini-1.5-pro-latest",
+                  "provider": "gemini",
+                  "context_window": 2000000,
+                  "configured": true
+                }
+              ]
+            }
+  x-codeSamples:
+    - lang: curl
+      source: |
+        curl https://api.routeur.ai/v1/models \
+          -H "Authorization: Bearer $ROUTEUR_KEY"
+    - lang: node
+      source: |
+        const res = await fetch("https://api.routeur.ai/v1/models", {
+          headers: { Authorization: `Bearer ${process.env.ROUTEUR_KEY}` }
+        });
+        const { data } = await res.json();
+    - lang: python
+      source: |
+        r = requests.get(
+            "https://api.routeur.ai/v1/models",
+            headers={"Authorization": f"Bearer {os.environ['ROUTEUR_KEY']}"},
+        )
+        models = r.json()["data"]

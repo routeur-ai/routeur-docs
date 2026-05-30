@@ -1,0 +1,93 @@
+parameters:
+  - in: path
+    name: request_id
+    required: true
+    schema: { type: string }
+    description: Trace request id, e.g. `01K...`. Returned from the `routeur` block of any chat response.
+
+get:
+  operationId: retrieveTrace
+  summary: Retrieve a trace
+  tags: [traces]
+  x-stability: Preview
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          x-label: Response
+          example: |
+            {
+              "request_id":  "01K...",
+              "provider":    "openai",
+              "model":       "gpt-4o-mini",
+              "latency_ms":  2939,
+              "status_code": 200,
+              "cost_usd":    0.00000615,
+              "redactions":  1,
+              "payload_url": "https://payloads.routeur.ai/...?sig=..."
+            }
+  x-codeSamples:
+    - lang: curl
+      source: |
+        curl https://api.routeur.ai/v1/traces/01K... \
+          -H "Authorization: Bearer $ROUTEUR_KEY"
+    - lang: node
+      source: |
+        const res = await fetch(
+          `https://api.routeur.ai/v1/traces/${requestId}`,
+          { headers: { Authorization: `Bearer ${process.env.ROUTEUR_KEY}` } }
+        );
+        const trace = await res.json();
+    - lang: python
+      source: |
+        r = requests.get(
+            f"https://api.routeur.ai/v1/traces/{request_id}",
+            headers={"Authorization": f"Bearer {os.environ['ROUTEUR_KEY']}"},
+        )
+        trace = r.json()
+
+head:
+  operationId: inspectTrace
+  summary: Inspect a trace
+  tags: [traces]
+  x-stability: Preview
+  responses:
+    '200':
+      description: OK
+      x-content-type: no body
+      x-label: Response headers
+      x-lang: text
+      x-body: |
+        X-Routeur-Trace-Status:   200
+        X-Routeur-Trace-Provider: openai
+        X-Routeur-Trace-Payload:  https://payloads.routeur.ai/...?sig=...
+      headers:
+        X-Routeur-Trace-Status:
+          schema: { type: integer }
+          description: Caller-visible HTTP status the original request received.
+        X-Routeur-Trace-Provider:
+          schema: { type: string }
+          description: Final upstream provider used.
+        X-Routeur-Trace-Payload:
+          schema: { x-type: url }
+          description: Signed URL for the payload archive if one exists. Absent when payload storage is disabled.
+  x-codeSamples:
+    - lang: curl
+      source: |
+        curl -I https://api.routeur.ai/v1/traces/01K... \
+          -H "Authorization: Bearer $ROUTEUR_KEY"
+    - lang: node
+      source: |
+        const res = await fetch(
+          `https://api.routeur.ai/v1/traces/${requestId}`,
+          { method: "HEAD", headers: { Authorization: `Bearer ${process.env.ROUTEUR_KEY}` } }
+        );
+        const payloadUrl = res.headers.get("X-Routeur-Trace-Payload");
+    - lang: python
+      source: |
+        r = requests.head(
+            f"https://api.routeur.ai/v1/traces/{request_id}",
+            headers={"Authorization": f"Bearer {os.environ['ROUTEUR_KEY']}"},
+        )
+        payload_url = r.headers.get("X-Routeur-Trace-Payload")

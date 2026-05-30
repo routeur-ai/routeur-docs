@@ -1,0 +1,5 @@
+type: http
+scheme: bearer
+description: |
+  All requests authenticate with a bearer token.
+  See [Authentication](/guides/authentication).

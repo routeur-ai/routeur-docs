@@ -1,0 +1,35 @@
+type: object
+description: An upstream model.
+x-sample-label: The Model object
+x-sample: |
+  {
+    "id":             "gpt-4o-mini",
+    "provider":       "openai",
+    "aliases":        ["auto", "cheap"],
+    "context_window": 128000,
+    "pricing": {
+      "prompt":     0.15,
+      "completion": 0.60
+    },
+    "configured":     true
+  }
+properties:
+  id:
+    type: string
+    description: Concrete upstream model id, e.g. `gpt-4o-mini`.
+  provider:
+    type: string
+    description: Upstream vendor — `openai`, `gemini`, `deepseek`.
+  aliases:
+    type: array
+    items: { type: string }
+    description: Aliases callers can use in the request `model` field that resolve to this model via the default mapping.
+  context_window:
+    type: integer
+    description: Maximum total tokens (prompt + completion) the upstream accepts.
+  pricing:
+    type: object
+    description: USD per million tokens for `prompt` and `completion`.
+  configured:
+    type: boolean
+    description: Whether an upstream credential is currently mounted for this provider. Unconfigured models cannot be routed to.

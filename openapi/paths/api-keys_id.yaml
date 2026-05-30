@@ -1,0 +1,32 @@
+parameters:
+  - in: path
+    name: id
+    required: true
+    schema: { type: string }
+    description: API key id (the `id` field, not the prefix or the secret itself).
+
+delete:
+  operationId: revokeApiKey
+  summary: Revoke an API key
+  tags: [api-keys]
+  x-stability: Preview
+  responses:
+    '204':
+      description: No Content
+  x-codeSamples:
+    - lang: curl
+      source: |
+        curl -X DELETE https://api.routeur.ai/v1/api-keys/key_01J... \
+          -H "Authorization: Bearer $ROUTEUR_KEY"
+    - lang: node
+      source: |
+        await fetch(`https://api.routeur.ai/v1/api-keys/${id}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${process.env.ROUTEUR_KEY}` }
+        });
+    - lang: python
+      source: |
+        requests.delete(
+            f"https://api.routeur.ai/v1/api-keys/{key_id}",
+            headers={"Authorization": f"Bearer {os.environ['ROUTEUR_KEY']}"},
+        )

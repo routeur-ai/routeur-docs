@@ -1,0 +1,111 @@
+post:
+  operationId: createChatCompletion
+  summary: Create a chat completion
+  tags: [chat-completions]
+  x-stability: Stable
+  parameters:
+    - in: header
+      name: Routeur-Trace
+      required: false
+      schema:
+        x-type: "true | false"
+      description: Append a `routeur` metadata block to the response.
+    - in: header
+      name: Routeur-Dry-Run
+      required: false
+      schema:
+        x-type: "true | false"
+      description: Return the route resolution without calling the upstream provider.
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required: [model, messages]
+          properties:
+            model:
+              type: string
+              description: |
+                The model to use. Pass `auto` (or any other alias defined in
+                your routing rules) to let routeur.ai pick the upstream model.
+                Pass an explicit upstream model id (e.g. `gpt-4o-mini`,
+                `claude-3-5-sonnet`) to bypass routing and send the request
+                directly to that model.
+            messages:
+              type: array
+              description: Conversation history. Each item has a `role` and `content`.
+              items:
+                type: object
+            temperature:
+              type: number
+              default: 1
+              description: Sampling temperature passed through to the upstream provider.
+            stream:
+              type: boolean
+              default: false
+              description: Return server-sent events when supported by the upstream provider.
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          x-label: Response
+          example: |
+            {
+              "id": "chatcmpl_01J...",
+              "object": "chat.completion",
+              "model": "gpt-4o-mini",
+              "choices": [{
+                "index": 0,
+                "message": {
+                  "role": "assistant",
+                  "content": "Hello there!"
+                },
+                "finish_reason": "stop"
+              }],
+              "routeur": {
+                "provider": "openai",
+                "model": "gpt-4o-mini",
+                "route_reason": "default",
+                "redactions": 1
+              }
+            }
+  x-codeSamples:
+    - lang: curl
+      source: |
+        curl https://api.routeur.ai/v1/chat/completions \
+          -H "Authorization: Bearer $ROUTEUR_KEY" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "model": "auto",
+            "messages": [
+              {"role": "user", "content": "Hello"}
+            ]
+          }'
+    - lang: node
+      source: |
+        import OpenAI from "openai";
+
+        const client = new OpenAI({
+          apiKey: process.env.ROUTEUR_KEY,
+          baseURL: "https://api.routeur.ai/v1"
+        });
+
+        const r = await client.chat.completions.create({
+          model: "auto",
+          messages: [{ role: "user", content: "Hello" }]
+        });
+    - lang: python
+      source: |
+        from openai import OpenAI
+
+        client = OpenAI(
+            api_key=os.environ["ROUTEUR_KEY"],
+            base_url="https://api.routeur.ai/v1",
+        )
+
+        r = client.chat.completions.create(
+            model="auto",
+            messages=[{"role": "user", "content": "Hello"}],
+        )

@@ -1,0 +1,48 @@
+type: object
+description: A routing rule.
+x-sample-label: The Route object
+x-sample: |
+  {
+    "id":          "route_01J...",
+    "name":        "premium_demo",
+    "priority":    100,
+    "enabled":     true,
+    "action_kind": "pin",
+    "match": {
+      "requested_model": "demo-premium"
+    },
+    "action": {
+      "provider": "openai",
+      "model":    "gpt-4o"
+    },
+    "created_at": "2026-05-29T10:00:00Z",
+    "updated_at": "2026-05-29T10:00:00Z"
+  }
+properties:
+  id:
+    type: string
+    description: Unique identifier, prefixed `route_`.
+  name:
+    type: string
+    description: Human-readable rule identifier surfaced in trace metadata as `rule:<name>`.
+  priority:
+    type: integer
+    description: Higher numbers evaluate first.
+  enabled:
+    type: boolean
+    description: Disabled rules are skipped at runtime.
+  action_kind:
+    x-type: "pin | auto"
+    description: "`pin` sends to a fixed provider/model pair. `auto` defers to routeur.ai's picker."
+  match:
+    type: object
+    description: Match condition. Currently supports `requested_model` (exact string match).
+  action:
+    type: object
+    description: "Resolution. For `pin`: `provider` + `model`."
+  created_at:
+    x-type: timestamp
+    description: ISO-8601 UTC timestamp.
+  updated_at:
+    x-type: timestamp
+    description: ISO-8601 UTC timestamp.

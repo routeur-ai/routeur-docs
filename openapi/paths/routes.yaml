@@ -1,0 +1,150 @@
+get:
+  operationId: listRoutes
+  summary: List routes
+  tags: [routes]
+  x-stability: Preview
+  parameters:
+    - in: query
+      name: enabled
+      required: false
+      schema: { type: boolean }
+      description: Restrict the result to only enabled (or only disabled) rules.
+    - in: query
+      name: limit
+      required: false
+      schema: { type: integer, default: 50, maximum: 200 }
+      description: Maximum number of rules to return.
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          x-label: Response
+          example: |
+            {
+              "data": [
+                {
+                  "id":       "route_01J...",
+                  "name":     "premium_demo",
+                  "priority": 100,
+                  "enabled":  true,
+                  "action_kind": "pin",
+                  "match":  { "requested_model": "demo-premium" },
+                  "action": { "provider": "openai", "model": "gpt-4o" }
+                }
+              ],
+              "has_more": false
+            }
+  x-codeSamples:
+    - lang: curl
+      source: |
+        curl https://api.routeur.ai/v1/routes \
+          -H "Authorization: Bearer $ROUTEUR_KEY"
+    - lang: node
+      source: |
+        const res = await fetch("https://api.routeur.ai/v1/routes", {
+          headers: { Authorization: `Bearer ${process.env.ROUTEUR_KEY}` }
+        });
+        const { data } = await res.json();
+    - lang: python
+      source: |
+        import os, requests
+
+        r = requests.get(
+            "https://api.routeur.ai/v1/routes",
+            headers={"Authorization": f"Bearer {os.environ['ROUTEUR_KEY']}"},
+        )
+        data = r.json()["data"]
+
+post:
+  operationId: createRoute
+  summary: Create a route
+  tags: [routes]
+  x-stability: Preview
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required: [name, action_kind, match, action]
+          properties:
+            name:
+              type: string
+              description: Unique within the organisation. Surfaced in trace metadata.
+            priority:
+              type: integer
+              default: 0
+              description: Higher numbers evaluate first.
+            enabled:
+              type: boolean
+              default: true
+              description: Create disabled if you want to stage a rule without it taking effect.
+            action_kind:
+              x-type: "pin | auto"
+              description: Resolution strategy.
+            match:
+              type: object
+              description: Match condition. Currently supports `requested_model`.
+            action:
+              type: object
+              description: For `pin`, supply `provider` and `model`.
+  responses:
+    '201':
+      description: Created
+      content:
+        application/json:
+          x-label: Response
+          example: |
+            {
+              "id":          "route_01J...",
+              "name":        "premium_demo",
+              "priority":    100,
+              "enabled":     true,
+              "action_kind": "pin",
+              "match":  { "requested_model": "demo-premium" },
+              "action": { "provider": "openai", "model": "gpt-4o" },
+              "created_at": "2026-05-29T10:00:00Z"
+            }
+  x-codeSamples:
+    - lang: curl
+      source: |
+        curl https://api.routeur.ai/v1/routes \
+          -H "Authorization: Bearer $ROUTEUR_KEY" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "name": "premium_demo",
+            "priority": 100,
+            "action_kind": "pin",
+            "match":  { "requested_model": "demo-premium" },
+            "action": { "provider": "openai", "model": "gpt-4o" }
+          }'
+    - lang: node
+      source: |
+        const res = await fetch("https://api.routeur.ai/v1/routes", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.ROUTEUR_KEY}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            name: "premium_demo",
+            priority: 100,
+            action_kind: "pin",
+            match:  { requested_model: "demo-premium" },
+            action: { provider: "openai", model: "gpt-4o" }
+          })
+        });
+    - lang: python
+      source: |
+        r = requests.post(
+            "https://api.routeur.ai/v1/routes",
+            headers={"Authorization": f"Bearer {os.environ['ROUTEUR_KEY']}"},
+            json={
+                "name": "premium_demo",
+                "priority": 100,
+                "action_kind": "pin",
+                "match":  {"requested_model": "demo-premium"},
+                "action": {"provider": "openai", "model": "gpt-4o"},
+            },
+        )

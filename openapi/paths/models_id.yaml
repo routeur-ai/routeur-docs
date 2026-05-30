@@ -1,0 +1,45 @@
+parameters:
+  - in: path
+    name: id
+    required: true
+    schema: { type: string }
+    description: Model id, e.g. `gpt-4o-mini`. Aliases (`auto`) resolve to their underlying model.
+
+get:
+  operationId: retrieveModel
+  summary: Retrieve a model
+  tags: [models]
+  x-stability: Stable
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          x-label: Response
+          example: |
+            {
+              "id":             "gpt-4o-mini",
+              "provider":       "openai",
+              "context_window": 128000,
+              "pricing": { "prompt": 0.15, "completion": 0.60 },
+              "configured":     true
+            }
+  x-codeSamples:
+    - lang: curl
+      source: |
+        curl https://api.routeur.ai/v1/models/gpt-4o-mini \
+          -H "Authorization: Bearer $ROUTEUR_KEY"
+    - lang: node
+      source: |
+        const res = await fetch(
+          `https://api.routeur.ai/v1/models/${id}`,
+          { headers: { Authorization: `Bearer ${process.env.ROUTEUR_KEY}` } }
+        );
+        const model = await res.json();
+    - lang: python
+      source: |
+        r = requests.get(
+            f"https://api.routeur.ai/v1/models/{model_id}",
+            headers={"Authorization": f"Bearer {os.environ['ROUTEUR_KEY']}"},
+        )
+        model = r.json()

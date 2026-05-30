@@ -1,0 +1,175 @@
+parameters:
+  - in: path
+    name: id
+    required: true
+    schema: { type: string }
+    description: Route id, e.g. `route_01J...`.
+
+get:
+  operationId: retrieveRoute
+  summary: Retrieve a route
+  tags: [routes]
+  x-stability: Preview
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          x-label: Response
+          example: |
+            {
+              "id":          "route_01J...",
+              "name":        "premium_demo",
+              "priority":    100,
+              "enabled":     true,
+              "action_kind": "pin",
+              "match":  { "requested_model": "demo-premium" },
+              "action": { "provider": "openai", "model": "gpt-4o" }
+            }
+  x-codeSamples:
+    - lang: curl
+      source: |
+        curl https://api.routeur.ai/v1/routes/route_01J... \
+          -H "Authorization: Bearer $ROUTEUR_KEY"
+    - lang: node
+      source: |
+        const res = await fetch(
+          `https://api.routeur.ai/v1/routes/${id}`,
+          { headers: { Authorization: `Bearer ${process.env.ROUTEUR_KEY}` } }
+        );
+        const route = await res.json();
+    - lang: python
+      source: |
+        r = requests.get(
+            f"https://api.routeur.ai/v1/routes/{route_id}",
+            headers={"Authorization": f"Bearer {os.environ['ROUTEUR_KEY']}"},
+        )
+        route = r.json()
+
+put:
+  operationId: replaceRoute
+  summary: Replace a route
+  tags: [routes]
+  x-stability: Preview
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema: { type: object }
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          x-label: Response
+          example: |
+            {
+              "id":          "route_01J...",
+              "name":        "premium_demo",
+              "priority":    200,
+              "updated_at":  "2026-05-29T11:00:00Z"
+            }
+  x-codeSamples:
+    - lang: curl
+      source: |
+        curl -X PUT https://api.routeur.ai/v1/routes/route_01J... \
+          -H "Authorization: Bearer $ROUTEUR_KEY" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "name": "premium_demo",
+            "priority": 200,
+            "enabled": true,
+            "action_kind": "pin",
+            "match":  { "requested_model": "demo-premium" },
+            "action": { "provider": "openai", "model": "gpt-4o" }
+          }'
+    - lang: node
+      source: |
+        await fetch(`https://api.routeur.ai/v1/routes/${id}`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${process.env.ROUTEUR_KEY}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(fullRoute)
+        });
+    - lang: python
+      source: |
+        requests.put(
+            f"https://api.routeur.ai/v1/routes/{route_id}",
+            headers={"Authorization": f"Bearer {os.environ['ROUTEUR_KEY']}"},
+            json=full_route,
+        )
+
+patch:
+  operationId: updateRoute
+  summary: Update a route
+  tags: [routes]
+  x-stability: Preview
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema: { type: object }
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          x-label: Response
+          example: |
+            {
+              "id":         "route_01J...",
+              "enabled":    false,
+              "updated_at": "2026-05-29T11:00:00Z"
+            }
+  x-codeSamples:
+    - lang: curl
+      source: |
+        curl -X PATCH https://api.routeur.ai/v1/routes/route_01J... \
+          -H "Authorization: Bearer $ROUTEUR_KEY" \
+          -H "Content-Type: application/json" \
+          -d '{ "enabled": false }'
+    - lang: node
+      source: |
+        await fetch(`https://api.routeur.ai/v1/routes/${id}`, {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${process.env.ROUTEUR_KEY}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ enabled: false })
+        });
+    - lang: python
+      source: |
+        requests.patch(
+            f"https://api.routeur.ai/v1/routes/{route_id}",
+            headers={"Authorization": f"Bearer {os.environ['ROUTEUR_KEY']}"},
+            json={"enabled": False},
+        )
+
+delete:
+  operationId: deleteRoute
+  summary: Delete a route
+  tags: [routes]
+  x-stability: Preview
+  responses:
+    '204':
+      description: No Content
+  x-codeSamples:
+    - lang: curl
+      source: |
+        curl -X DELETE https://api.routeur.ai/v1/routes/route_01J... \
+          -H "Authorization: Bearer $ROUTEUR_KEY"
+    - lang: node
+      source: |
+        await fetch(`https://api.routeur.ai/v1/routes/${id}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${process.env.ROUTEUR_KEY}` }
+        });
+    - lang: python
+      source: |
+        requests.delete(
+            f"https://api.routeur.ai/v1/routes/{route_id}",
+            headers={"Authorization": f"Bearer {os.environ['ROUTEUR_KEY']}"},
+        )

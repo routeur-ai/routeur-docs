@@ -1,0 +1,66 @@
+get:
+  operationId: listTraces
+  summary: List traces
+  tags: [traces]
+  x-stability: Preview
+  parameters:
+    - in: query
+      name: limit
+      required: false
+      schema: { type: integer, default: 50, maximum: 200 }
+      description: Maximum number of records to return.
+    - in: query
+      name: starting_after
+      required: false
+      schema: { type: string }
+      description: Cursor — `request_id` from the previous page.
+    - in: query
+      name: status
+      required: false
+      schema: { type: integer }
+      description: Restrict to a single HTTP status code, e.g. `200` or `403`.
+    - in: query
+      name: provider
+      required: false
+      schema: { type: string }
+      description: Restrict to a single upstream provider.
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          x-label: Response
+          example: |
+            {
+              "data": [
+                {
+                  "request_id":  "01K...",
+                  "provider":    "openai",
+                  "model":       "gpt-4o-mini",
+                  "latency_ms":  2939,
+                  "status_code": 200,
+                  "cost_usd":    0.00000615
+                }
+              ],
+              "has_more": true
+            }
+  x-codeSamples:
+    - lang: curl
+      source: |
+        curl "https://api.routeur.ai/v1/traces?limit=20&status=200" \
+          -H "Authorization: Bearer $ROUTEUR_KEY"
+    - lang: node
+      source: |
+        const res = await fetch(
+          "https://api.routeur.ai/v1/traces?limit=20",
+          { headers: { Authorization: `Bearer ${process.env.ROUTEUR_KEY}` } }
+        );
+        const { data, has_more } = await res.json();
+    - lang: python
+      source: |
+        r = requests.get(
+            "https://api.routeur.ai/v1/traces",
+            headers={"Authorization": f"Bearer {os.environ['ROUTEUR_KEY']}"},
+            params={"limit": 20, "status": 200},
+        )
+        traces = r.json()["data"]

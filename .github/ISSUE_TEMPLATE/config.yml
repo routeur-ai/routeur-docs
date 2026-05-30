@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security issue
+    url: mailto:security@routeur.ai
+    about: Report vulnerabilities privately instead of opening a public issue.
+  - name: Product support
+    url: https://routeur.ai/support
+    about: For account, billing, or product questions unrelated to docs.

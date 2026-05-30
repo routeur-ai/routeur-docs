@@ -1,0 +1,44 @@
+openapi: 3.1.0
+info:
+  title: routeur.ai API
+  version: '1'
+  description: Intelligent LLM gateway.
+servers:
+  - url: https://api.routeur.ai
+    description: Production
+security:
+  - bearer_auth: []
+components:
+  securitySchemes:
+    bearer_auth:
+      $ref: ./components/securitySchemes/bearer_auth.yaml
+  schemas:
+    ChatCompletion:
+      $ref: ./components/schemas/ChatCompletion.yaml
+    Route:
+      $ref: ./components/schemas/Route.yaml
+    Model:
+      $ref: ./components/schemas/Model.yaml
+    Trace:
+      $ref: ./components/schemas/Trace.yaml
+    APIKey:
+      $ref: ./components/schemas/APIKey.yaml
+paths:
+  /v1/chat/completions:
+    $ref: ./paths/chat-completions.yaml
+  /v1/routes:
+    $ref: ./paths/routes.yaml
+  /v1/routes/{id}:
+    $ref: ./paths/routes_id.yaml
+  /v1/models:
+    $ref: ./paths/models.yaml
+  /v1/models/{id}:
+    $ref: ./paths/models_id.yaml
+  /v1/traces:
+    $ref: ./paths/traces.yaml
+  /v1/traces/{request_id}:
+    $ref: ./paths/traces_request_id.yaml
+  /v1/api-keys:
+    $ref: ./paths/api-keys.yaml
+  /v1/api-keys/{id}:
+    $ref: ./paths/api-keys_id.yaml

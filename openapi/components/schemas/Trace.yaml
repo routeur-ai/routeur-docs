@@ -1,0 +1,61 @@
+type: object
+description: A compact record persisted for every request through the gateway.
+x-sample-label: The Trace object
+x-sample: |
+  {
+    "request_id":        "01K...",
+    "organization_id":   "org_42",
+    "api_key_id":        "key_01J...",
+    "provider":          "openai",
+    "model":             "gpt-4o-mini",
+    "requested_model":   "auto",
+    "route_reason":      "default",
+    "latency_ms":        2939,
+    "prompt_tokens":     13,
+    "completion_tokens": 7,
+    "total_tokens":      20,
+    "cost_usd":          0.00000615,
+    "status_code":       200,
+    "redactions":        1,
+    "payload_url":       "https://payloads.routeur.ai/...?sig=..."
+  }
+properties:
+  request_id:
+    type: string
+    description: Stable id used across response metadata, trace records, and payload archives.
+  organization_id:
+    type: string
+    description: Owning organisation for the request.
+  api_key_id:
+    type: string
+    description: Resolved caller key id.
+  provider:
+    type: string
+    description: Final upstream provider selected for the call.
+  model:
+    type: string
+    description: Final upstream model selected for the call.
+  requested_model:
+    type: string
+    description: Model alias or string the caller originally sent.
+  route_reason:
+    type: string
+    description: "`default` or `rule:<name>`."
+  latency_ms:
+    type: integer
+    description: End-to-end latency measured by routeur.ai.
+  prompt_tokens / completion_tokens / total_tokens:
+    type: integer
+    description: Usage metrics returned by the upstream provider.
+  cost_usd:
+    type: number
+    description: Estimate from the configured pricing table.
+  status_code:
+    type: integer
+    description: Caller-visible HTTP status code.
+  redactions:
+    type: integer
+    description: Number of input substitutions DLP made before the upstream call.
+  payload_url:
+    type: string
+    description: Short-lived signed URL to the full payload archive when payload storage is enabled.
