@@ -103,6 +103,25 @@ Output moderation is the inverse case: the upstream model does produce content, 
 **Important distinction.** With output moderation, the LLM has already seen the prompt and answered. The control protects the end user, not the upstream model.
 :::
 
+## Streaming
+
+The same four layers apply to streamed requests (`"stream": true`). The
+caller request and upstream request are identical; layers 3 and 4 are simply
+delivered incrementally as `chat.completion.chunk` events rather than a single
+JSON body. For an organization with **output-moderation** rules in the default
+`buffered` mode the gateway buffers the full upstream response, moderates it,
+and only then replays it as a stream — so the moderation security property
+above is preserved unchanged.
+
+The one exception is the opt-in `chunked` mode: there the gateway forwards
+tokens as it scans, so a caller may receive some content before a block fires.
+The "caller never sees blocked content" guarantee therefore holds for buffered
+moderation (and for every non-streamed request) and is explicitly waived, per
+org or per rule, only by choosing `chunked`. See
+[Create a chat completion → Streaming](/api-reference/chat-completions/create)
+for the wire format and [Output moderation](/guides/output-moderation) for the
+`buffered` vs `chunked` modes.
+
 ## Trace records and payload archives
 
 Routeur exposes two observability layers for audits and debugging.

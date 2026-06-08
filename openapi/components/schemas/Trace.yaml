@@ -17,6 +17,8 @@ x-sample: |
     "cost_usd":          0.00000615,
     "status_code":       200,
     "redactions":        1,
+    "streamed":          true,
+    "ttfb_ms":           184,
     "payload_url":       "https://payloads.routeur.ai/...?sig=..."
   }
 properties:
@@ -56,6 +58,18 @@ properties:
   redactions:
     type: integer
     description: Number of input substitutions DLP made before the upstream call.
+  streamed:
+    type: boolean
+    description: True when the response was delivered as a server-sent event stream.
+  ttfb_ms:
+    type: number
+    description: Time to first byte — ms from request start until the first response byte left the gateway. Streamed requests only.
+  stream_aborted:
+    type: boolean
+    description: True when a stream was cut after delivery began — a mid-stream upstream failure, a client disconnect, or a chunked output-moderation block.
+  disclosed_bytes:
+    type: integer
+    description: Bytes of model output that had already reached the caller when a chunked-moderation block aborted the stream (ADR-011 disclosure trade-off).
   payload_url:
     type: string
     description: Short-lived signed URL to the full payload archive when payload storage is enabled.

@@ -45,11 +45,29 @@ post:
             stream:
               type: boolean
               default: false
-              description: Return server-sent events when supported by the upstream provider.
+              description: >
+                When true, the response is streamed as server-sent events
+                (`text/event-stream`): a sequence of `chat.completion.chunk`
+                objects terminated by `data: [DONE]`. For organizations with
+                output-moderation rules the stream is delivered only after
+                moderation completes (see the Streaming section of the guide).
   responses:
     '200':
-      description: OK
+      description: >
+        OK. A single chat completion object when `stream` is false, or an
+        SSE `text/event-stream` of `chat.completion.chunk` objects when
+        `stream` is true.
       content:
+        text/event-stream:
+          x-label: Streamed response (stream=true)
+          example: |
+            data: {"id":"chatcmpl_01J...","object":"chat.completion.chunk","model":"gpt-4o-mini","choices":[{"index":0,"delta":{"role":"assistant"}}]}
+
+            data: {"object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"Hello"}}]}
+
+            data: {"object":"chat.completion.chunk","choices":[{"index":0,"delta":{},"finish_reason":"stop"}],"usage":{"prompt_tokens":9,"completion_tokens":2,"total_tokens":11}}
+
+            data: [DONE]
         application/json:
           x-label: Response
           example: |

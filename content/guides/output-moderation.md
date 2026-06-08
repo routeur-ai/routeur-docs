@@ -65,3 +65,63 @@ routeur.ai ships a managed set of categories that map to shared policy detectors
 - **pii-leak:** response surfaces personally-identifiable information not present in the prompt.
 - **secret-leak:** response contains a credential format (API key, private key block).
 - **unsafe-code:** response contains a runnable destructive command (e.g. `rm -rf /`).
+
+## Streaming behaviour
+
+When a caller requests a streamed response (`"stream": true`), output
+moderation has to choose between protecting the caller and delivering tokens as
+they arrive. Two modes control this, set per organization with an optional
+per-rule override.
+
+:::params
+- mode: buffered
+  desc: The gateway drains the full upstream response, runs moderation, and only then replays it to the caller as an SSE stream. Blocked content never reaches the caller; the stream simply starts after moderation completes. This is the default.
+- mode: chunked
+  desc: The gateway forwards chunks as they arrive and scans incrementally, aborting the stream with a terminal error event on a block. Lower time-to-first-token, but some content may reach the caller before the verdict is known.
+:::
+
+**Resolution order.** A rule's own `streaming` setting wins over the org-wide
+default. If *any* applicable rule resolves to `buffered`, the whole request is
+buffered — a single conservative rule cannot be bypassed by an org-level
+`chunked` default. Only when every applicable rule resolves to `chunked` is the
+response streamed with chunked moderation.
+
+:::callout amber
+**`chunked` is opt-in for a reason.** In chunked mode the gateway forwards
+tokens as they arrive and scans the accumulated output as it goes. When a rule
+matches, the gateway stops — it never forwards the chunk that completed the
+violation — but tokens sent before that point have already reached the caller.
+Choose `chunked` only where that disclosure is acceptable; leave the default
+`buffered` when it is not.
+:::
+
+### How a chunked block is delivered
+
+Because the stream's HTTP status is already committed to `200`, a chunked block
+arrives as a terminal SSE error event, after which the stream closes (no
+`[DONE]`):
+
+```
+event: error
+data: {"error":{"code":"blocked_by_moderation","message":"moderation:<rule>","type":"routeur_error"},"request_id":"01K..."}
+```
+
+If the very first chunk trips the rule — nothing has been sent yet — the caller
+instead gets the ordinary buffered `403` JSON, identical to a non-streamed
+block.
+
+Every chunked block is audited: the trace records `block_stage:
+output_moderation`, the matching rule, `stream_aborted: true`, and
+`disclosed_bytes` — exactly how many bytes of model output reached the caller
+before the stream was cut. The payload archive still holds the full upstream
+response (including the violating content that was *not* forwarded), so an
+auditor can see both what the model produced and what the caller saw.
+
+### When `chunked` falls back to `buffered`
+
+Incremental scanning needs a bounded window: the gateway keeps a sliding window
+of recent bytes so a match that straddles a chunk boundary is still found. A
+rule whose detector could match more than that window (a deliberately
+unbounded pattern) cannot be scanned safely in chunks, so a request that would
+otherwise be `chunked` is served as `buffered` instead — correctness is never
+traded for latency.

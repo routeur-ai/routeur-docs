@@ -52,7 +52,31 @@ Routeur returns short, JSON-shaped errors with a stable `error.code` and a human
   desc: The upstream call hit routeur.ai's per-request timeout. Safe to retry idempotently.
 :::
 
+## Errors during a stream
+
+For streamed requests (`"stream": true`) the HTTP status is committed once the
+first chunk is sent. A failure after that point cannot change the status, so it
+arrives as a terminal SSE event and the stream then closes:
+
+```
+event: error
+data: {"error":{"code":"upstream_error","message":"...","type":"routeur_error"},"request_id":"01K..."}
+```
+
+A failure *before* the first chunk (auth, routing, output-moderation block on a
+moderated org, or an upstream that produced no bytes) is returned as the
+ordinary JSON error above with its normal status code — no stream is opened.
+
+Two stream-specific cases to handle client-side:
+
+- **Mid-stream `error` event.** Treat it like the equivalent HTTP error code:
+  `upstream_error` is retryable, a moderation block is not.
+- **Truncated stream (no terminal `error` and no `[DONE]`).** A deploy or
+  scale-in can cut a long-lived stream. This is expected operationally; retry
+  the request idempotently.
+
 ## Retry guidance
 
-- **Retry:** `429`, `502`, `504` with exponential backoff.
+- **Retry:** `429`, `502`, `504` with exponential backoff; a mid-stream
+  `upstream_error` event; a truncated stream.
 - **Do not retry:** `400`, `401`, `403`. The request will keep failing.
