@@ -63,7 +63,7 @@ Pin every request that asked for the alias `demo-premium` to `openai/gpt-4o`.
   desc: Matches on whether the request carries image content.
 - name: action.provider
   type: string
-  desc: "Upstream provider identifier — the key in the provider catalogue, e.g. `openai`, `anthropic`, `google`.
+  desc: "Upstream provider identifier — the key in the provider catalogue, e.g. `openai`, `anthropic`, `google`."
 - name: action.model
   type: string
   desc: Concrete upstream model id.
