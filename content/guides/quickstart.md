@@ -18,7 +18,7 @@ Sign in to the routeur.ai dashboard, open **Settings → API keys**, and click *
 
 :::codetabs
 ```shell
-export ROUTEUR_KEY="rtr_your_routeur_api_key"
+export ROUTEUR_KEY="sk-r-your_routeur_api_key"
 ```
 :::
 
@@ -154,4 +154,32 @@ Add `Routeur-Trace: true` to any request to receive a `routeur` block in the res
 
 :::callout violet
 **Try a dry run.** Add `Routeur-Dry-Run: true` to see the route routeur.ai would have picked without calling the upstream provider or spending tokens.
+:::
+
+## 4. Discover which models you can use
+
+`GET /v1/models` lists the models your workspace has activated, with pricing and whether a provider credential is currently mounted for each. This is also the endpoint tools probe before they will accept a custom base URL, so pointing LangChain, LibreChat, Open WebUI, Continue or an editor integration at `https://api.routeur.ai/v1` works with no further configuration.
+
+:::code
+```bash
+curl https://api.routeur.ai/v1/models \
+  -H "Authorization: Bearer $ROUTEUR_KEY"
+```
+:::
+
+## 5. Move your embeddings across too
+
+If you run retrieval, your indexing job is probably still calling the provider directly — which means the documents you embed never pass your policies. `POST /v1/embeddings` takes the same OpenAI-compatible body, applies your DLP and shield rules to the input, and records the spend on the same trace as everything else.
+
+:::code
+```bash
+curl https://api.routeur.ai/v1/embeddings \
+  -H "Authorization: Bearer $ROUTEUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"text-embedding-3-small","input":"The quick brown fox"}'
+```
+:::
+
+:::callout amber
+**Pin the model.** Unlike chat completions, `auto` is not accepted here — vectors from different models are not comparable, so switching model silently would corrupt an index rather than just change a reply.
 :::

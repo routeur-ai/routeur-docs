@@ -20,6 +20,9 @@ get:
           example: |
             {
               "id":             "gpt-4o-mini",
+              "object":         "model",
+              "created":        1735689600,
+              "owned_by":       "openai",
               "provider":       "openai",
               "context_window": 128000,
               "pricing": { "prompt": 0.15, "completion": 0.60 },

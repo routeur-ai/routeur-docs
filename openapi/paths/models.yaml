@@ -23,18 +23,34 @@ get:
           x-label: Response
           example: |
             {
+              "object": "list",
               "data": [
                 {
-                  "id":       "gpt-4o-mini",
-                  "provider": "openai",
-                  "context_window": 128000,
+                  "id":         "auto",
+                  "object":     "model",
+                  "created":    1735689600,
+                  "owned_by":   "routeur",
+                  "provider":   "routeur",
                   "configured": true
                 },
                 {
-                  "id":       "gemini-1.5-pro-latest",
-                  "provider": "gemini",
+                  "id":             "gpt-4o-mini",
+                  "object":         "model",
+                  "created":        1735689600,
+                  "owned_by":       "openai",
+                  "provider":       "openai",
+                  "context_window": 128000,
+                  "pricing":        { "prompt": 0.15, "completion": 0.60 },
+                  "configured":     true
+                },
+                {
+                  "id":             "gemini-1.5-pro-latest",
+                  "object":         "model",
+                  "created":        1735689600,
+                  "owned_by":       "gemini",
+                  "provider":       "gemini",
                   "context_window": 2000000,
-                  "configured": true
+                  "configured":     true
                 }
               ]
             }

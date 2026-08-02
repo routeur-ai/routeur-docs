@@ -11,4 +11,4 @@ next:
   href: /api-reference/models/list
 ---
 
-An upstream model that routeur.ai knows how to route to. Models are read-only — the available set is managed by routeur.ai and reflects which provider keys are configured for your organisation.
+An upstream model that routeur.ai knows how to route to. Models are read-only — the available set is the catalogue activated for your workspace. The per-row `configured` flag indicates whether a provider credential is in place for it.

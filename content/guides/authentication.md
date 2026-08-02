@@ -10,20 +10,20 @@ next:
   label: Errors
 ---
 
-Routeur uses bearer tokens. Every request to `api.routeur.ai` must include an `Authorization` header carrying a routeur.ai API key. Upstream provider keys never leave the routeur.ai control plane — your application only needs the routeur.ai key.
+routeur.ai uses bearer tokens. Every request to `api.routeur.ai` must include an `Authorization` header carrying a routeur.ai API key. Upstream provider keys never leave the routeur.ai control plane — your application only needs the routeur.ai key.
 
 ## Header format
 
 :::code label="request headers"
 ```http
-Authorization: Bearer rtr_your_routeur_api_key
+Authorization: Bearer sk-r-your_routeur_api_key
 Content-Type:  application/json
 ```
 :::
 
 ## Key format
 
-Routeur keys are prefixed with `rtr_` so they're easy to spot in logs and secret scanners. The plaintext value is shown once at creation time; routeur.ai stores only a one-way hash.
+routeur.ai keys are prefixed with `sk-r-` so they're easy to spot in logs and secret scanners. The plaintext value is shown once at creation time; routeur.ai stores only a one-way hash.
 
 ## Loading the key
 
@@ -39,11 +39,14 @@ Treat the routeur.ai key as an environment-level secret. Never commit it. The st
   code: unauthorized
   note: missing or unknown key
   desc: The `Authorization` header is absent, malformed, or carries a key routeur.ai does not recognise.
-- status: "403"
-  code: forbidden
-  note: revoked or disabled key
-  desc: The key exists but has been revoked or its owning organisation is disabled.
+- status: "402"
+  code: billing_inactive
+  note: no active subscription
+  desc: The key is valid but the owning organisation has no active subscription.
 :::
+
+A revoked or disabled key returns `401 unauthorized`, the same as an unknown
+key — the gateway does not distinguish the two to the caller.
 
 ## Rotating keys
 

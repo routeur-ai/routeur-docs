@@ -10,7 +10,7 @@ delete:
   summary: Revoke an API key
   description: Revoke an API key so it can no longer be used for authentication.
   tags: [api-keys]
-  x-stability: Preview
+  x-stability: Coming soon
   responses:
     '204':
       description: No Content

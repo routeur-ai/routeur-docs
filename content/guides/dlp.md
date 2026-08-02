@@ -20,7 +20,7 @@ Input data-loss prevention (DLP) runs on the caller's prompt *before* routeur.ai
   desc: Records a match in the trace without modifying the request. Useful while tuning a new rule.
 - name: redact
   note: rewrites in place
-  desc: Replaces the matched substring with `[REDACTED]` before the upstream call. The number of substitutions is reported in `routeur.ai.redactions`.
+  desc: Replaces the matched substring with `[REDACTED]` before the upstream call. The number of substitutions is reported in `routeur.redactions` when you send `Routeur-Trace: true`.
 - name: warn
   note: trace flag
   desc: "Like `log` but raises severity on the trace record."

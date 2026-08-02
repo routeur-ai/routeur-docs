@@ -22,8 +22,8 @@ This page is the canonical reference. Each entry has a stable anchor (e.g. `/gui
 - name: Secret scanners
   desc: "Trace-only credential matchers. Same coverage as DLP for the shared ones, plus three providers (`gcp_key`, `stripe_key`, `slack_token`) that are scanner-only. See [Secret scanners](/guides/presets#secret-scanners)."
 - name: Prompt shield
-  note: coming soon
-  desc: "Jailbreak, role-play, system-leak, tool-abuse and indirect-injection detection. Seven categories, each with named presets, plus encoded-payload and ML-classifier modes. See [Prompt shield](/guides/presets#prompt-shield)."
+  note: live · custom rules only
+  desc: "Jailbreak, role-play, system-leak, tool-abuse and indirect-injection detection. The engine enforces your own keyword and pattern rules today; the named presets below are not yet registered. See [Prompt shield](/guides/presets#prompt-shield)."
 - name: Output moderation
   desc: "Content-safety categories applied to the **upstream model's response**. Each category has a default severity. See [Output moderation](/guides/presets#output-moderation)."
 - name: Quality scorers
@@ -275,7 +275,14 @@ Slack tokens issued to bots, users, and apps: `xoxb-…`, `xoxp-…`, `xoxa-…`
 ## Prompt shield
 
 :::callout amber
-**Coming soon.** Prompt shield will give you a single switch for the prompt-injection, role-play, system-leak and tool-abuse patterns that show up in production traffic, with named presets you can enable individually rather than one opaque "safety" toggle. The categories and IDs below are the shape it will ship in.
+**Live, with your own rules. Named presets are still coming.** The shield engine
+runs on every request today: each shield rule carries a keyword list or a regular
+expression plus an action (`block`, `sanitize`, `warn`, `log`), and a `block`
+returns `403 blocked_by_shield` before the prompt reaches any provider. What isn't wired yet is the
+managed preset library — the category and preset IDs below are a stable contract,
+but enabling one by name returns a clear "not yet enforceable" error rather than
+silently doing nothing. Until then, write the pattern yourself; the enforcement
+path is identical.
 :::
 
 Prompt shield protects the model from prompt-injection, role-play coercion, system-prompt leakage, tool abuse and indirect-injection attacks. Each shield rule belongs to a **category**, and most categories ship with a set of named **presets** you can enable or disable individually.

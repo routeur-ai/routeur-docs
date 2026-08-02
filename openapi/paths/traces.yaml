@@ -3,7 +3,7 @@ get:
   summary: List traces
   description: List recent request traces for the authenticated organisation.
   tags: [traces]
-  x-stability: Preview
+  x-stability: Coming soon
   parameters:
     - in: query
       name: limit

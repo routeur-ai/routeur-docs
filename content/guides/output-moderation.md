@@ -22,13 +22,16 @@ Output moderation runs *after* the upstream model has answered but *before* the 
 - name: log
   note: non-blocking
   desc: Records the match on the trace without modifying the response.
-- name: redact
-  desc: Rewrites the matched substring with `[REDACTED]` in the caller-visible content.
-- name: rewrite
-  desc: Replaces the matched span with a configured substitution string.
 - name: block
   note: replaces the response
   desc: Returns `403 blocked_by_moderation` instead of the upstream content. Token usage is still recorded.
+:::
+
+:::callout amber
+**`redact` and `rewrite` are not enforced on output yet.** The schema accepts
+them and a match is still recorded on the trace, but the response is returned
+unmodified. Use `block` if the content must not reach the caller. Input-side
+redaction *is* enforced — see [DLP](/guides/dlp).
 :::
 
 ## Example: block a managed category
@@ -36,8 +39,8 @@ Output moderation runs *after* the upstream model has answered but *before* the 
 :::code label="rule"
 ```json
 {
-  "name":     "secret_leak_block",
-  "category": "secret-leak",
+  "name":     "hate_block",
+  "category": "hate",
   "action":   "block",
   "severity": "high",
   "enabled":  true
@@ -50,7 +53,7 @@ Output moderation runs *after* the upstream model has answered but *before* the 
 {
   "error": {
     "code":    "blocked_by_moderation",
-    "message": "moderation:secret_leak_block",
+    "message": "moderation:hate_block",
     "type":    "routeur_error"
   }
 }
@@ -59,12 +62,25 @@ Output moderation runs *after* the upstream model has answered but *before* the 
 
 ## Managed categories
 
-routeur.ai ships a managed set of categories that map to shared policy detectors:
+routeur.ai ships eight managed output categories, matched in-process against
+curated word-lists. See [presets](/guides/presets) for the full table.
 
-- **prompt-injection:** response contains an attempt to subvert the system prompt.
-- **pii-leak:** response surfaces personally-identifiable information not present in the prompt.
-- **secret-leak:** response contains a credential format (API key, private key block).
-- **unsafe-code:** response contains a runnable destructive command (e.g. `rm -rf /`).
+| Category | Severity |
+|---|---|
+| `hate` | high |
+| `sexual` | high |
+| `sexual_minors` | high |
+| `self_harm` | high |
+| `violence` | high |
+| `harassment` | medium |
+| `profanity` | medium |
+| `weapons` | medium |
+
+Set `category` to `regex` instead to supply your own `pattern`.
+
+Prompt-injection detection is a separate feature — see
+[presets](/guides/presets) for the prompt-shield categories. Input-side PII and
+secret detection is [DLP](/guides/dlp).
 
 ## Streaming behaviour
 

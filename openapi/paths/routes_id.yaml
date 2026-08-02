@@ -10,7 +10,7 @@ get:
   summary: Retrieve a route
   description: Retrieve a single routing rule by its identifier.
   tags: [routes]
-  x-stability: Preview
+  x-stability: Coming soon
   responses:
     '200':
       description: OK
@@ -52,7 +52,7 @@ put:
   summary: Replace a route
   description: Replace an existing routing rule with a full new definition.
   tags: [routes]
-  x-stability: Preview
+  x-stability: Coming soon
   requestBody:
     required: true
     content:
@@ -108,7 +108,7 @@ patch:
   summary: Update a route
   description: Update selected fields on an existing routing rule.
   tags: [routes]
-  x-stability: Preview
+  x-stability: Coming soon
   requestBody:
     required: true
     content:
@@ -156,7 +156,7 @@ delete:
   summary: Delete a route
   description: Delete a routing rule by its identifier.
   tags: [routes]
-  x-stability: Preview
+  x-stability: Coming soon
   responses:
     '204':
       description: No Content

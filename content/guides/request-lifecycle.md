@@ -19,11 +19,11 @@ Each numbered box below is its own JSON document. Together they form the complet
 :::cards cols=2
 - label: 1 · Caller → routeur.ai
   desc: The original OpenAI-compatible request body from your application.
-- label: 2 · Routeur → LLM
+- label: 2 · routeur.ai → LLM
   desc: The upstream request after routing, DLP, and any one-request overrides have been applied.
 - label: 3 · LLM → routeur.ai
   desc: The raw upstream response from the provider adapter.
-- label: 4 · Routeur → caller
+- label: 4 · routeur.ai → caller
   desc: The OpenAI-compatible response or short JSON error the caller actually receives.
 :::
 
@@ -87,12 +87,12 @@ This is the most important example for security reviews because it proves the LL
 
 Output moderation is the inverse case: the upstream model does produce content, but routeur.ai prevents that content from reaching the caller.
 
-:::response status=400 label="Caller response"
+:::response status=403 label="Caller response"
 ```json
 {
   "error": {
     "code": "blocked_by_moderation",
-    "message": "moderation:secret_leak_block",
+    "message": "moderation:hate_block",
     "type": "routeur_error"
   }
 }
@@ -124,9 +124,9 @@ for the wire format and [Output moderation](/guides/output-moderation) for the
 
 ## Trace records and payload archives
 
-Routeur exposes two observability layers for audits and debugging.
+routeur.ai exposes two observability layers for audits and debugging.
 
-- **Trace record:** compact request metadata persisted for every request, including provider, requested model, final model, latency, token counts, cost, and an optional `payload_url`.
+- **Trace record:** compact request metadata persisted for every request, including provider, requested model, final model, latency, token counts, cost, and — when payload capture is enabled — the archive's `gcs_path`.
 - **Payload archive:** the full request and response bundle, encrypted at rest and fetched via a short-lived signed URL. The archive includes the caller request, upstream request, upstream response, and the response body returned to the caller.
 
 :::code label="Trace record"
@@ -142,7 +142,7 @@ Routeur exposes two observability layers for audits and debugging.
   "prompt_tokens": 13,
   "completion_tokens": 7,
   "cost_usd": 0.00000615,
-  "payload_url": "https://payloads.routeur.ai/...?sig=..."
+  "gcs_path": "gs://<project>-routeur-payloads/01K..."
 }
 ```
 :::

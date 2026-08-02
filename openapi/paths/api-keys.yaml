@@ -3,7 +3,7 @@ get:
   summary: List API keys
   description: List the API keys available to the authenticated organisation.
   tags: [api-keys]
-  x-stability: Preview
+  x-stability: Coming soon
   responses:
     '200':
       description: OK
@@ -46,7 +46,7 @@ post:
   summary: Create an API key
   description: Create a new API key for authenticating requests to routeur.ai.
   tags: [api-keys]
-  x-stability: Preview
+  x-stability: Coming soon
   requestBody:
     required: true
     content:

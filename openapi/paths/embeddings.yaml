@@ -1,0 +1,119 @@
+post:
+  operationId: createEmbeddings
+  summary: Create embeddings
+  description: >
+    Generate embedding vectors for one or more inputs. OpenAI-compatible:
+    callers built against `POST /v1/embeddings` work without changes. DLP and
+    prompt-shield rules run on the input before it reaches the provider, and
+    the call is traced and costed alongside your chat traffic.
+  tags: [embeddings]
+  x-stability: Stable
+  parameters:
+    - in: header
+      name: Routeur-Trace
+      required: false
+      schema:
+        x-type: "true | false"
+      description: Append a `routeur` metadata block to the response.
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required: [model, input]
+          properties:
+            model:
+              type: string
+              description: >
+                The embedding model to use, e.g. `text-embedding-3-small`.
+                Unlike chat completions this must be an explicit model —
+                `auto` is not accepted, because vectors produced by different
+                models are not comparable and silently switching model would
+                corrupt an index.
+            input:
+              type: string
+              description: >
+                The text to embed: a single string, or an array of strings for
+                a batch. Pre-tokenised integer arrays are rejected — they carry
+                no text for DLP to inspect, which would route content around
+                your policies.
+            encoding_format:
+              type: string
+              enum: [float, base64]
+              default: float
+              description: >
+                Wire format for the returned vectors. The gateway always takes
+                `float` from the upstream and encodes to this format itself,
+                so the values are identical either way and providers that do
+                not support the parameter (Gemini) behave the same as those
+                that do. Any other value returns `400 invalid_request`.
+            dimensions:
+              type: integer
+              description: Requested vector size, where the upstream model supports truncation.
+            user:
+              type: string
+              description: Opaque end-user identifier passed through to the upstream provider.
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          x-label: Response
+          example: |
+            {
+              "object": "list",
+              "data": [
+                {
+                  "object":    "embedding",
+                  "index":     0,
+                  "embedding": [0.0023, -0.0091, 0.0142]
+                }
+              ],
+              "model": "text-embedding-3-small",
+              "usage": { "prompt_tokens": 5, "total_tokens": 5 }
+            }
+    '400':
+      description: >
+        Invalid request. `model_not_found` when the model is not activated for
+        the workspace, `embeddings_unsupported` when the provider serving it
+        has no embeddings API (Anthropic, for example).
+    '403':
+      description: Blocked by a DLP or prompt-shield rule before reaching the provider.
+  x-codeSamples:
+    - lang: curl
+      source: |
+        curl https://api.routeur.ai/v1/embeddings \
+          -H "Authorization: Bearer $ROUTEUR_KEY" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "model": "text-embedding-3-small",
+            "input": "The quick brown fox"
+          }'
+    - lang: python
+      source: |
+        from openai import OpenAI
+
+        client = OpenAI(
+            api_key=os.environ["ROUTEUR_KEY"],
+            base_url="https://api.routeur.ai/v1",
+        )
+
+        res = client.embeddings.create(
+            model="text-embedding-3-small",
+            input=["The quick brown fox", "jumps over the lazy dog"],
+        )
+        vectors = [d.embedding for d in res.data]
+    - lang: node
+      source: |
+        import OpenAI from "openai";
+
+        const client = new OpenAI({
+          apiKey: process.env.ROUTEUR_KEY,
+          baseURL: "https://api.routeur.ai/v1",
+        });
+
+        const res = await client.embeddings.create({
+          model: "text-embedding-3-small",
+          input: "The quick brown fox",
+        });

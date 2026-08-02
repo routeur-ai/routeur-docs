@@ -15,4 +15,4 @@ Fetch a single model by id. OpenAI-compatible — identical contract to `GET /v1
 
 ## Returns
 
-The matching [Model object](/api-reference/models/object), or `404 not_found`.
+The matching [Model object](/api-reference/models/object), or `404 model_not_found`.

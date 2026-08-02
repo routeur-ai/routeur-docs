@@ -10,7 +10,7 @@ get:
   summary: Retrieve a trace
   description: Retrieve the full stored trace record for a single request.
   tags: [traces]
-  x-stability: Preview
+  x-stability: Coming soon
   responses:
     '200':
       description: OK
@@ -53,7 +53,7 @@ head:
   summary: Inspect a trace
   description: Inspect high-level trace metadata through response headers only.
   tags: [traces]
-  x-stability: Preview
+  x-stability: Coming soon
   responses:
     '200':
       description: OK

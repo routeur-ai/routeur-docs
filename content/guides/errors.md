@@ -1,16 +1,16 @@
 ---
 title: Errors
-description: Routeur error codes, statuses, and how to handle them.
+description: routeur.ai error codes, statuses, and how to handle them.
 section: Get started
 prev:
   href: /guides/authentication
   label: Authentication
 next:
   href: /guides/rate-limits
-  label: Rate limits
+  label: Limits and quotas
 ---
 
-Routeur returns short, JSON-shaped errors with a stable `error.code` and a human-readable `error.message`. Raw upstream provider error bodies are never relayed to callers — you'll always see a routeur-shaped envelope.
+routeur.ai returns short, JSON-shaped errors with a stable `error.code` and a human-readable `error.message`. Raw upstream provider error bodies are never relayed to callers — you'll always see a routeur.ai-shaped envelope.
 
 ## Error shape
 
@@ -35,22 +35,55 @@ Routeur returns short, JSON-shaped errors with a stable `error.code` and a human
 - status: "401"
   code: unauthorized
   desc: Missing or unknown routeur.ai bearer token. See [Authentication](/guides/authentication).
+- status: "400"
+  code: embeddings_unsupported
+  desc: The resolved model does not support embeddings.
+- status: "402"
+  code: billing_inactive
+  desc: The organisation's subscription is cancelled. See [Limits and quotas](/guides/rate-limits).
 - status: "403"
   code: blocked_by_dlp
-  desc: Input safety or DLP blocked the request before the upstream call. The matching rule name is in `error.message`.
+  desc: DLP blocked the request before the upstream call. The matching rule slug is in `error.message`.
+- status: "403"
+  code: blocked_by_shield
+  desc: A prompt-shield rule matched the input — for example an instruction-override or encoded-payload attempt.
+- status: "403"
+  code: blocked_by_classifier
+  desc: A classifier rule's score threshold was exceeded on the input.
 - status: "403"
   code: blocked_by_moderation
   desc: The upstream model answered but output moderation blocked the response from reaching the caller.
+- status: "404"
+  code: model_not_found
+  desc: Unknown model id, or a model not activated for your workspace.
+- status: "413"
+  code: body_too_large
+  desc: Request body exceeded the cap — 5 MiB for chat completions, 10 MiB for embeddings.
 - status: "429"
-  code: rate_limited
-  desc: Per-key request or token rate cap exceeded. See [Rate limits](/guides/rate-limits).
+  code: allowance_exceeded
+  desc: Monthly allowance and overage guardrail both reached. See [Limits and quotas](/guides/rate-limits).
+- status: "429"
+  code: upstream_rate_limited
+  desc: The upstream provider rate-limited the call. Retry with backoff.
+- status: "502"
+  code: provider_unconfigured
+  desc: No credential is configured for the resolved provider.
+- status: "502"
+  code: provider_unavailable
+  desc: The upstream provider could not be reached.
 - status: "502"
   code: upstream_error
-  desc: Non-timeout upstream failure or `provider_unconfigured` when no provider key is mounted.
+  desc: Non-timeout upstream failure.
+- status: "503"
+  code: overloaded
+  desc: The gateway's in-flight cap was reached. Carries `Retry-After`; retry with jittered backoff.
 - status: "504"
   code: upstream_error
   desc: The upstream call hit routeur.ai's per-request timeout. Safe to retry idempotently.
 :::
+
+There is no `rate_limited` code and no `forbidden` code. A revoked key returns
+`401 unauthorized`, the same as an unknown one.
 
 ## Errors during a stream
 

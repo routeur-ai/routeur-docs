@@ -1,6 +1,6 @@
 ---
-title: Rate limits
-description: Per-key request and token rate limits, response headers, and backoff behaviour.
+title: Limits and quotas
+description: How routeur.ai governs throughput — plan allowances, overage, and gateway backpressure.
 section: Get started
 prev:
   href: /guides/errors
@@ -10,52 +10,53 @@ next:
   label: Request lifecycle
 ---
 
-Routeur applies two independent caps per API key: **requests per minute** and **tokens per minute** (prompt + completion). Hitting either cap returns `429 rate_limited`.
+routeur.ai does not apply a fixed per-key requests-per-minute or tokens-per-minute cap. Throughput is governed by your **plan allowance** at the organisation level, plus **gateway backpressure** when the service is saturated.
 
-## Defaults
+## Plan allowance
 
-New keys start with conservative limits. The dashboard shows your current caps and lets you request increases.
+Each plan includes a pooled monthly routed-request allowance, scaled by seats. Usage beyond the allowance is billed as overage rather than refused — you are not cut off at the boundary.
 
-:::cards cols=2
-- label: Requests / minute
-  value: "600"
-  desc: Default per-key request cap.
-- label: Tokens / minute
-  value: "200,000"
-  desc: Combined prompt + completion tokens.
-:::
-
-## Response headers
-
-Every response includes the current state of both buckets so clients can self-throttle without polling.
+Traffic is only refused once an organisation passes the blocking guardrail well above its allowance:
 
 :::params
-- name: X-Routeur-RateLimit-Requests-Remaining
-  type: integer
-  desc: Requests left in the current minute window.
-- name: X-Routeur-RateLimit-Tokens-Remaining
-  type: integer
-  desc: Tokens left in the current minute window.
-- name: Retry-After
-  type: seconds
-  note: on 429 only
-  desc: Number of seconds to wait before retrying.
+- status: "429"
+  code: allowance_exceeded
+  desc: The monthly routed-request allowance and its overage guardrail have both been reached. Add seats, upgrade the plan, or contact support to raise the cap.
+- status: "402"
+  code: billing_inactive
+  desc: The organisation's subscription is cancelled. A `past_due` subscription keeps serving traffic through the dunning window.
 :::
 
-## Hitting the limit
+Both gates are deliberately eventually consistent — usage is rolled up on a schedule, projected to the gateway, and cached — so they take effect within minutes, not instantly.
 
-:::response status=429 label="caller response"
+Read-only metadata endpoints (`GET /v1/models`) deliberately keep working when an organisation is capped, so a client can still connect and discover why it is being refused.
+
+## Budgets
+
+Budgets are separate from plan allowances: you set them per workspace or project in the dashboard to alert on, or stop, spend against your own thresholds. See the dashboard's Cost section.
+
+## Gateway backpressure
+
+Independently of billing, the gateway sheds load when its in-flight request cap is reached:
+
+:::response status=503 label="caller response"
 ```json
 {
   "error": {
-    "code":    "rate_limited",
-    "message": "requests per minute exceeded",
+    "code":    "overloaded",
+    "message": "server is at capacity",
     "type":    "routeur_error"
   }
 }
 ```
 :::
 
+A `503 overloaded` carries a `Retry-After` header. Retry with jittered backoff.
+
+## Upstream rate limits
+
+If the upstream provider rate-limits us for your call, that surfaces as `429 upstream_rate_limited`. This reflects the provider's own limits on the credential in use, not a routeur.ai cap.
+
 :::callout amber
-**Streaming caveat.** Streamed responses count their completion tokens against your bucket as they're generated. A long stream can therefore push you over the cap mid-response.
+**No rate-limit headers.** The gateway does not emit `X-Routeur-RateLimit-*` headers. Track consumption from the usage dashboard or your traces rather than from response headers.
 :::

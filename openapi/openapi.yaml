@@ -14,6 +14,8 @@ security:
 tags:
   - name: chat-completions
     description: OpenAI-compatible chat completion requests routed through routeur.ai.
+  - name: embeddings
+    description: OpenAI-compatible embedding requests, governed by the same input-side DLP and shield rules.
   - name: routes
     description: Routing rule management for model resolution and traffic shaping.
   - name: models
@@ -40,6 +42,8 @@ components:
 paths:
   /v1/chat/completions:
     $ref: ./paths/chat-completions.yaml
+  /v1/embeddings:
+    $ref: ./paths/embeddings.yaml
   /v1/routes:
     $ref: ./paths/routes.yaml
   /v1/routes/{id}:

@@ -3,7 +3,7 @@ get:
   summary: List routes
   description: List the routing rules configured for the authenticated organisation.
   tags: [routes]
-  x-stability: Preview
+  x-stability: Coming soon
   parameters:
     - in: query
       name: enabled
@@ -62,7 +62,7 @@ post:
   summary: Create a route
   description: Create a new routing rule for model selection and request handling.
   tags: [routes]
-  x-stability: Preview
+  x-stability: Coming soon
   requestBody:
     required: true
     content:
