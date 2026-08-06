@@ -40,6 +40,6 @@ Three problems that every team running LLM features hits, and the one place to s
 ## Design principles
 
 - **OpenAI-compatible at the edge.** Existing SDKs, fewer migrations.
-- **Stateless hot path.** The gateway holds no per-request state. Configuration is read from a managed read model behind a short cache, so a rule change in the dashboard takes effect within seconds — no redeploy, no restart.
+- **Stateless hot path.** The gateway holds no per-request state. Configuration is read from a managed read model behind a short cache, so a rule change in the dashboard takes effect within about a minute — no redeploy, no restart.
 - **Short, JSON error bodies.** routeur.ai never relays raw upstream error pages back to your application.
 - **Auditable.** Trace records and optional payload archives let you reconstruct any request.

@@ -50,4 +50,4 @@ key — the gateway does not distinguish the two to the caller.
 
 ## Rotating keys
 
-Create a replacement key before revoking the current one. Roll the new value through deployment, then revoke the old key from the dashboard. Revocation takes effect within seconds because the gateway checks key validity on every request.
+Create a replacement key before revoking the current one. Roll the new value through deployment, then revoke the old key from the dashboard. Allow up to about a minute for the revocation to take effect across the gateway — the gateway checks key validity on every request, but against configuration that propagates from the dashboard asynchronously.
