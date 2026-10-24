@@ -41,7 +41,16 @@ This page is the canonical reference. Each entry has a stable anchor (e.g. `/gui
 
 ## DLP
 
-DLP presets run on the **caller's prompt** before routeur.ai forwards the request upstream. Each preset is referenced from a DLP rule with `detector: "preset"` and `preset: "<id>"`. Action is yours to choose: `log`, `redact`, `warn`, or `block`. See [DLP](/guides/dlp) for actions and rule shape.
+DLP presets run on the **caller's prompt** before routeur.ai forwards the request upstream. Each preset is referenced from a DLP rule with `detector: "preset"` and `preset: "<id>"`. Action is yours to choose: Log (`log`), Alert (`warn`), Tokenize (`tokenize`), Redact (`redact`) or Block (`block`). See [DLP](/guides/dlp) for actions and rule shape.
+
+### How detection works { #dlp-how-detection-works }
+
+Pattern matching alone produces false positives: any nine digits look like an identifier. Several presets below add two checks before they report a match.
+
+- **Checksums.** Where the identifier has a check digit or check letter (mod-11, Luhn, Verhoeff, the ABA routing checksum), the preset validates it, so a random number of the right length is rejected.
+- **Context words.** Where an identifier has no checksum, or a weak one, the preset also requires a related word such as "NHS", "patient", "passport" or "routing" within about 60 characters of the number.
+
+This approach is modelled on the open-source recognizers in [Microsoft Presidio](https://github.com/microsoft/presidio), and credit for the technique goes to that project. The implementation, patterns and context lists are routeur.ai's own.
 
 ### `dlp-email` { #dlp-email }
 
@@ -55,25 +64,25 @@ by end of day Friday.
 ```
 ```text
 Please email the Q3 report to
-[REDACTED]
+[REDACTED:EMAIL]
 by end of day Friday.
 ```
 :::
 
 ### `dlp-phone` { #dlp-phone }
 
-International phone numbers in the formats people actually write them. Tolerant of spaces, dashes, dots, parentheses, and the leading `+`.
+International phone numbers that start with `+` and a country code, in the formats people actually write them. Tolerant of spaces, dashes, dots and one parenthesised group, and the number must have 8 to 15 digits. National formats written without a country code, such as `(415) 555-0132`, are not matched; cover those with a regex rule.
 
 :::codegrid cols=2 label1="prompt" label2="upstream sees"
 ```text
 Call the customer back on
 +44 20 7946 0958 or
-(415) 555-0132 tomorrow afternoon.
++1 (415) 555-0132 tomorrow afternoon.
 ```
 ```text
 Call the customer back on
-[REDACTED] or
-[REDACTED] tomorrow afternoon.
+[REDACTED:PHONE] or
+[REDACTED:PHONE] tomorrow afternoon.
 ```
 :::
 
@@ -88,7 +97,7 @@ was declined when I tried to
 renew the subscription. Can you help?
 ```
 ```text
-My card [REDACTED]
+My card [REDACTED:CREDIT_CARD]
 was declined when I tried to
 renew the subscription. Can you help?
 ```
@@ -104,7 +113,7 @@ The applicant's SSN is 123-45-6789
 and their DOB is on the application form.
 ```
 ```text
-The applicant's SSN is [REDACTED]
+The applicant's SSN is [REDACTED:US_SSN]
 and their DOB is on the application form.
 ```
 :::
@@ -121,7 +130,7 @@ before close of business today.
 ```
 ```text
 Wire the deposit to
-[REDACTED]
+[REDACTED:IBAN]
 before close of business today.
 ```
 :::
@@ -138,7 +147,7 @@ in the last five minutes.
 ```
 ```text
 Two failed login attempts from
-[REDACTED] and [REDACTED]
+[REDACTED:IP_ADDRESS] and [REDACTED:IP_ADDRESS]
 in the last five minutes.
 ```
 :::
@@ -154,7 +163,7 @@ to deploy the staging stack — the
 secret is in the shared vault.
 ```
 ```text
-Use [REDACTED]
+Use [REDACTED:AWS_KEY]
 to deploy the staging stack — the
 secret is in the shared vault.
 ```
@@ -172,7 +181,7 @@ won't authenticate against the API.
 ```
 ```text
 My CI keeps failing — the token
-[REDACTED]
+[REDACTED:GITHUB_TOKEN]
 won't authenticate against the API.
 ```
 :::
@@ -189,14 +198,14 @@ keeps being rejected as expired.
 ```
 ```text
 Debugging an auth issue — the token
-[REDACTED]
+[REDACTED:JWT]
 keeps being rejected as expired.
 ```
 :::
 
 ### `dlp-private_key` { #dlp-private_key }
 
-PEM-armoured private keys for RSA, EC, Ed25519, OpenSSH and PKCS#8: any block beginning `-----BEGIN … PRIVATE KEY-----` and ending with the matching footer. Catches keys pasted into a chat or returned by a misconfigured tool.
+PEM-armoured private keys for RSA, DSA, EC, OpenSSH, PGP and PKCS#8, encrypted or not: any block beginning `-----BEGIN … PRIVATE KEY-----` and ending with the matching footer. The whole block is replaced, key body included. A block with no footer (a truncated paste) is replaced from the header to the end of the text. Catches keys pasted into a chat or returned by a misconfigured tool.
 
 :::codegrid cols=2 label1="prompt" label2="upstream sees"
 ```text
@@ -208,8 +217,143 @@ What am I missing?
 ```
 ```text
 The service is refusing the key:
-[REDACTED]
+[REDACTED:PRIVATE_KEY]
 What am I missing?
+```
+:::
+
+### `dlp-uk_nhs_number` { #dlp-uk_nhs_number }
+
+UK NHS numbers: ten digits, in the common `NNN NNN NNNN` grouping or run together. The mod-11 check digit must validate, and a context word such as "NHS" or "patient" must appear nearby.
+
+:::codegrid cols=2 label1="prompt" label2="upstream sees"
+```text
+The patient's NHS number is
+943 476 5919 per the discharge letter.
+```
+```text
+The patient's NHS number is
+[REDACTED:UK_NHS_NUMBER] per the discharge letter.
+```
+:::
+
+### `dlp-us_itin` { #dlp-us_itin }
+
+US Individual Taxpayer Identification Numbers in the `9NN-NN-NNNN` form, with the issued group ranges. Requires a context word such as "ITIN" or "taxpayer" nearby.
+
+:::codegrid cols=2 label1="prompt" label2="upstream sees"
+```text
+Her ITIN is 912-70-1234 for the
+filing.
+```
+```text
+Her ITIN is [REDACTED:US_ITIN] for the
+filing.
+```
+:::
+
+### `dlp-es_dni` { #dlp-es_dni }
+
+Spanish DNI (eight digits and a letter) and NIE (X, Y or Z, seven digits and a letter) identity numbers. The check letter must be correct for the number.
+
+:::codegrid cols=2 label1="prompt" label2="upstream sees"
+```text
+Documento de identidad: 12345678Z
+para el alta del cliente.
+```
+```text
+Documento de identidad: [REDACTED:ES_DNI]
+para el alta del cliente.
+```
+:::
+
+### `dlp-it_fiscal_code` { #dlp-it_fiscal_code }
+
+Italian codice fiscale: the 16-character personal code. The final check character must validate against the preceding fifteen.
+
+:::codegrid cols=2 label1="prompt" label2="upstream sees"
+```text
+Codice fiscale: RSSMRA85T10A562S
+da inserire nel modulo.
+```
+```text
+Codice fiscale: [REDACTED:IT_FISCAL_CODE]
+da inserire nel modulo.
+```
+:::
+
+### `dlp-in_aadhaar` { #dlp-in_aadhaar }
+
+Indian Aadhaar numbers: twelve digits, in groups of four or run together. The Verhoeff checksum must validate, and a context word such as "Aadhaar" must appear nearby.
+
+:::codegrid cols=2 label1="prompt" label2="upstream sees"
+```text
+Aadhaar number 2345 6789 0124 is
+on the KYC form.
+```
+```text
+Aadhaar number [REDACTED:IN_AADHAAR] is
+on the KYC form.
+```
+:::
+
+### `dlp-ca_sin` { #dlp-ca_sin }
+
+Canadian Social Insurance Numbers in the `NNN-NNN-NNN` form. The Luhn checksum must validate, and a context word such as "SIN" or "social insurance" must appear nearby.
+
+:::codegrid cols=2 label1="prompt" label2="upstream sees"
+```text
+Employee social insurance number:
+046-454-286 for payroll.
+```
+```text
+Employee social insurance number:
+[REDACTED:CA_SIN] for payroll.
+```
+:::
+
+### `dlp-us_aba_routing` { #dlp-us_aba_routing }
+
+US ABA bank routing numbers: nine digits whose weighted ABA checksum validates, with a context word such as "routing" or "ABA" nearby.
+
+:::codegrid cols=2 label1="prompt" label2="upstream sees"
+```text
+ACH routing number 021000021 and
+account to follow.
+```
+```text
+ACH routing number [REDACTED:US_ABA_ROUTING] and
+account to follow.
+```
+:::
+
+### `dlp-uk_nino` { #dlp-uk_nino }
+
+UK National Insurance numbers: two prefix letters, six digits and a suffix letter (A to D), excluding prefixes HMRC never issues. Requires a context word such as "National Insurance" or "NI number" nearby.
+
+:::codegrid cols=2 label1="prompt" label2="upstream sees"
+```text
+My National Insurance number is
+AB 12 34 56 C.
+```
+```text
+My National Insurance number is
+[REDACTED:UK_NINO].
+```
+:::
+
+### `dlp-swift_bic` { #dlp-swift_bic }
+
+SWIFT/BIC bank identifier codes: eight or eleven characters with a valid country code. Requires a context word such as "SWIFT" or "BIC" nearby, so ordinary uppercase words are left alone.
+
+:::codegrid cols=2 label1="prompt" label2="upstream sees"
+```text
+Send it via SWIFT to DEUTDEFF500
+this afternoon.
+```
+```text
+Send it via SWIFT to [REDACTED:SWIFT_BIC]
+this afternoon.
 ```
 :::
 

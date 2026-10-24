@@ -46,7 +46,7 @@ This is the most important example for security reviews because it proves the LL
   "model": "gpt-4o-mini",
   "messages": [{
     "role": "user",
-    "content": "Repeat this card: [REDACTED]"
+    "content": "Repeat this card: [REDACTED:CREDIT_CARD]"
   }]
 }
 ```
@@ -80,8 +80,10 @@ This is the most important example for security reviews because it proves the LL
 :::
 
 :::callout violet
-**Security property.** The caller sent the real card number, but the upstream provider only received `[REDACTED]`.
+**Security property.** The caller sent the real card number, but the upstream provider only received `[REDACTED:CREDIT_CARD]`.
 :::
+
+The other DLP actions change this flow differently. Log and Alert forward the request unchanged, Tokenize swaps the match for a token and restores it in step 4, and Block stops the request after step 1 with `403 blocked_by_dlp`. If a policy's pattern cannot be compiled, the request stops at the same point with `503 policy_invalid`. See [DLP](/guides/dlp).
 
 ## Example: output moderation block
 

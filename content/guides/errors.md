@@ -43,7 +43,7 @@ routeur.ai returns short, JSON-shaped errors with a stable `error.code` and a hu
   desc: The organisation's subscription is cancelled. See [Limits and quotas](/guides/rate-limits).
 - status: "403"
   code: blocked_by_dlp
-  desc: DLP blocked the request before the upstream call. The matching rule slug is in `error.message`.
+  desc: A DLP policy with the Block action matched the request, which was stopped before the upstream call. The matching policy slug is in `error.message`. See [DLP](/guides/dlp).
 - status: "403"
   code: blocked_by_shield
   desc: A prompt-shield rule matched the input — for example an instruction-override or encoded-payload attempt.
@@ -74,6 +74,9 @@ routeur.ai returns short, JSON-shaped errors with a stable `error.code` and a hu
 - status: "502"
   code: upstream_error
   desc: Non-timeout upstream failure.
+- status: "503"
+  code: policy_invalid
+  desc: "A DLP, prompt-shield or moderation policy that covers the request has a pattern the gateway cannot compile, so it fails closed. The message names the policy. Fix the pattern in the admin panel. Not retryable until fixed. A Log or Alert DLP policy with a bad pattern is skipped instead. See [DLP](/guides/dlp#when-a-pattern-cannot-be-compiled)."
 - status: "503"
   code: overloaded
   desc: The gateway's in-flight cap was reached. Carries `Retry-After`; retry with jittered backoff.
@@ -112,4 +115,4 @@ Two stream-specific cases to handle client-side:
 
 - **Retry:** `429`, `502`, `504` with exponential backoff; a mid-stream
   `upstream_error` event; a truncated stream.
-- **Do not retry:** `400`, `401`, `403`. The request will keep failing.
+- **Do not retry:** `400`, `401`, `403`, and `503 policy_invalid`. The request will keep failing until the policy is fixed. A `503 overloaded` is retryable.
